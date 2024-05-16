@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using PennyPlanner.Models;
 
 namespace PennyPlanner.Controllers
 {
@@ -19,9 +20,9 @@ namespace PennyPlanner.Controllers
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+        public IEnumerable<User> Get()
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            return Enumerable.Range(1, 5).Select(index => new User
             {
                 Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
                 TemperatureC = Random.Shared.Next(-20, 55),
