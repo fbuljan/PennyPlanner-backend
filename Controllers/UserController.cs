@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PennyPlanner.DTOs.User;
+using PennyPlanner.Models;
 using PennyPlanner.Services.Interfaces;
+using PennyPlanner.Utils;
 
 namespace PennyPlanner.Controllers
 {
@@ -9,10 +12,12 @@ namespace PennyPlanner.Controllers
     public class UserController : ControllerBase
     {
         private IUserService UserService { get; }
+        private IConfiguration Configuration { get; }
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IConfiguration configuration)
         {
             UserService = userService;
+            Configuration = configuration;
         }
 
         [HttpPost("register")]
@@ -30,45 +35,50 @@ namespace PennyPlanner.Controllers
             return BadRequest(ModelState);
         }
 
-        //[HttpPost("login")]
-        //public async Task<IActionResult> LoginUser(UserLoginModel model)
-        //{
-        //    if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        //    User? user = null;
+        //todo extract to user service?
+        [HttpPost("login")]
+        public async Task<IActionResult> LoginUser(UserLogin userLogin)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        //    if (!string.IsNullOrWhiteSpace(model.Login))
-        //    {
-        //        if (RegexUtils.IsValidEmail(model.Login))
-        //            user = await context.Users.FirstOrDefaultAsync(u => u.Email == model.Login);
-        //        else
-        //            user = await context.Users.FirstOrDefaultAsync(u => u.Username == model.Login);
-        //    }
+            UserGet? user = null;
 
-        //    if (user == null)
-        //    {
-        //        return Unauthorized(new { success = false, message = "Authentication failed. User not found." });
-        //    }
+            if (!string.IsNullOrWhiteSpace(userLogin.Login))
+            {
+                var users = await UserService.GetUsersAsync();
 
-        //    var passwordIsValid = PasswordUtils.VerifyPassword(model.Password, user.Password);
-        //    if (!passwordIsValid)
-        //    {
-        //        return Unauthorized(new { success = false, message = "Authentication failed. Incorrect password." });
-        //    }
+                if (RegexUtils.IsValidEmail(userLogin.Login))
+                    user = users.FirstOrDefault(u => u.Email == userLogin.Login);
+                else
+                    user = users.FirstOrDefault(u => u.Username == userLogin.Login);
+            }
 
-        //    var token = GenerateJwtToken(user);
+            if (user == null)
+            {
+                return Unauthorized(new { success = false, message = "Authentication failed. User not found." });
+            }
 
-        //    var response = new
-        //    {
-        //        success = true,
-        //        message = "Login successful",
-        //        user = new { user.ID, user.Name, user.Username, user.Email },
-        //        token
-        //    };
+            var passwordIsValid = PasswordUtils.VerifyPassword(userLogin.Password, user.Password);
+            if (!passwordIsValid)
+            {
+                return Unauthorized(new { success = false, message = "Authentication failed. Incorrect password." });
+            }
 
-        //    return Ok(response);
-        //}
+            var token = AuthUtils.GenerateJwtToken(user, Configuration);
 
+            var response = new
+            {
+                success = true,
+                message = "Login successful",
+                user = new { user.Id, user.Name, user.Username, user.Email },
+                token
+            };
+
+            return Ok(response);
+        }
+
+        [Authorize]
         [HttpPut]
         [Route("update")]
         public async Task<IActionResult> UpdateUser(UserUpdate userUpdate)
@@ -78,6 +88,7 @@ namespace PennyPlanner.Controllers
             return Ok(user);
         }
 
+        [Authorize]
         [HttpDelete]
         [Route("delete")]
         public async Task<IActionResult> DeleteUser(UserDelete userDelete)
@@ -86,6 +97,7 @@ namespace PennyPlanner.Controllers
             return Ok();
         }
 
+        [Authorize]
         [HttpGet]
         [Route("get/{id}")]
         public async Task<IActionResult> GetUser(int id)
@@ -94,6 +106,7 @@ namespace PennyPlanner.Controllers
             return Ok(user);
         }
 
+        [Authorize]
         [HttpGet]
         [Route("get")]
         public async Task<IActionResult> GetUsers()

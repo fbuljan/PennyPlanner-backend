@@ -48,7 +48,7 @@ namespace PennyPlanner.Services
             return Mapper.Map<List<UserGet>>(users);
         }
 
-        //todo hash password, allow partial update
+        //todo hash new password, allow partial update
         public async Task UpdateUserAsync(UserUpdate userUpdate)
         {
             var user = Mapper.Map<User>(userUpdate);
