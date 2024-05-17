@@ -1,5 +1,7 @@
 
 using PennyPlanner.Database;
+using PennyPlanner.Models;
+using PennyPlanner.Repository;
 
 namespace PennyPlanner
 {
@@ -10,7 +12,9 @@ namespace PennyPlanner
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            DIConfiguration.RegisterServices(builder.Services);
             builder.Services.AddDbContext<ApplicationDbContext>();
+            builder.Services.AddScoped<IGenericRepository<User>, GenericRepository<User>>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

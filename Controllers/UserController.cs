@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PennyPlanner.DTOs.User;
-using PennyPlanner.Models;
 using PennyPlanner.Services.Interfaces;
-using PennyPlanner.Utils;
 
 namespace PennyPlanner.Controllers
 {
@@ -22,7 +20,6 @@ namespace PennyPlanner.Controllers
         {
             if (ModelState.IsValid)
             {
-                userCreate.Password = PasswordUtils.HashPassword(userCreate.Password);
                 var id = await UserService.CreateUserAsync(userCreate);
                 var user = await UserService.GetUserAsync(id);
 
