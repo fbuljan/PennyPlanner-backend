@@ -70,7 +70,7 @@ namespace PennyPlanner.Controllers
         public async Task<IActionResult> UpdateUser(UserUpdate userUpdate)
         {
             await UserService.UpdateUserAsync(userUpdate);
-            var user = UserService.GetUserAsync(userUpdate.Id);
+            var user = await UserService.GetUserAsync(userUpdate.Id);
             return Ok(user);
         }
 

@@ -48,11 +48,26 @@ namespace PennyPlanner.Services
             return Mapper.Map<List<UserGet>>(users);
         }
 
-        //todo hash new password, allow partial update
         public async Task UpdateUserAsync(UserUpdate userUpdate)
         {
-            var user = Mapper.Map<User>(userUpdate);
-            UserRepository.Update(user);
+            var existingUser = await UserRepository.GetByIdAsync(userUpdate.Id) ?? throw new Exception("User not found");
+            
+            if (!string.IsNullOrWhiteSpace(userUpdate.Username)) 
+                existingUser.Username = userUpdate.Username;
+
+            if (!string.IsNullOrWhiteSpace(userUpdate.Email))
+                existingUser.Email = userUpdate.Email;
+
+            if (!string.IsNullOrWhiteSpace(userUpdate.Password))
+                existingUser.Password = PasswordUtils.HashPassword(userUpdate.Password);
+
+            if (userUpdate.GetNotifications.HasValue)
+                existingUser.GetNotifications = userUpdate.GetNotifications.Value;
+
+            if (!string.IsNullOrWhiteSpace(userUpdate.Name))
+                existingUser.Name = userUpdate.Name;
+
+            UserRepository.Update(existingUser);
             await UserRepository.SaveChangesAsync();
         }
 
