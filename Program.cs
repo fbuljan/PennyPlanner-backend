@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using PennyPlanner.Database;
+using PennyPlanner.Middleware;
 using PennyPlanner.Models;
 using PennyPlanner.Repository;
+using Serilog;
 using System.Text;
 
 namespace PennyPlanner
@@ -12,6 +14,11 @@ namespace PennyPlanner
     {
         public static void Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.File("Logs/app_log.txt", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -26,6 +33,8 @@ namespace PennyPlanner
 
             SetUpJWT(builder);
 
+            builder.Host.UseSerilog();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -34,6 +43,8 @@ namespace PennyPlanner
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseMiddleware<RequestLoggingMiddleware>();
 
             using (var scope = app.Services.CreateScope())
             {
@@ -46,7 +57,19 @@ namespace PennyPlanner
             app.UseAuthorization();
             app.MapControllers();
 
-            app.Run();
+            try
+            {
+                Log.Information("Starting web host");
+                app.Run();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Host terminated unexpectedly");
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
 
         private static void SetUpJWT(WebApplicationBuilder builder)
