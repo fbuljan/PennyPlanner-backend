@@ -10,6 +10,7 @@ namespace PennyPlanner
         {
             services.AddAutoMapper(typeof(DtoEntityMapperProfile));
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IAuthService, AuthService>();
         }
     }
 }

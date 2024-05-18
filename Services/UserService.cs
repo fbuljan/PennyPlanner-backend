@@ -55,5 +55,15 @@ namespace PennyPlanner.Services
             UserRepository.Update(user);
             await UserRepository.SaveChangesAsync();
         }
+
+        public async Task<UserGet?> GetUserByLoginAsync(string login)
+        {
+            var users = await GetUsersAsync();
+
+            if (RegexUtils.IsValidEmail(login))
+                return users.FirstOrDefault(u => u.Email == login);
+            else
+                return users.FirstOrDefault(u => u.Username == login);
+        }
     }
 }

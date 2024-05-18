@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PennyPlanner.DTOs.User;
-using PennyPlanner.Models;
 using PennyPlanner.Services.Interfaces;
-using PennyPlanner.Utils;
 
 namespace PennyPlanner.Controllers
 {
@@ -12,12 +10,12 @@ namespace PennyPlanner.Controllers
     public class UserController : ControllerBase
     {
         private IUserService UserService { get; }
-        private IConfiguration Configuration { get; }
+        private IAuthService AuthService { get; }
 
-        public UserController(IUserService userService, IConfiguration configuration)
+        public UserController(IUserService userService, IAuthService authService)
         {
             UserService = userService;
-            Configuration = configuration;
+            AuthService = authService;
         }
 
         [HttpPost("register")]
@@ -35,37 +33,25 @@ namespace PennyPlanner.Controllers
             return BadRequest(ModelState);
         }
 
-
-        //todo extract to user service?
         [HttpPost("login")]
         public async Task<IActionResult> LoginUser(UserLogin userLogin)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            UserGet? user = null;
-
-            if (!string.IsNullOrWhiteSpace(userLogin.Login))
-            {
-                var users = await UserService.GetUsersAsync();
-
-                if (RegexUtils.IsValidEmail(userLogin.Login))
-                    user = users.FirstOrDefault(u => u.Email == userLogin.Login);
-                else
-                    user = users.FirstOrDefault(u => u.Username == userLogin.Login);
-            }
+            UserGet? user = await UserService.GetUserByLoginAsync(userLogin.Login);
 
             if (user == null)
             {
                 return Unauthorized(new { success = false, message = "Authentication failed. User not found." });
             }
 
-            var passwordIsValid = PasswordUtils.VerifyPassword(userLogin.Password, user.Password);
+            var passwordIsValid = AuthService.VerifyPassword(userLogin.Password, user.Password);
             if (!passwordIsValid)
             {
                 return Unauthorized(new { success = false, message = "Authentication failed. Incorrect password." });
             }
 
-            var token = AuthUtils.GenerateJwtToken(user, Configuration);
+            var token = AuthService.GenerateJwtToken(user);
 
             var response = new
             {

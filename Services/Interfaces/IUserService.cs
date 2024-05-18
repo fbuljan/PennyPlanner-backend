@@ -9,5 +9,6 @@ namespace PennyPlanner.Services.Interfaces
         Task DeleteUserAsync(UserDelete userDelete);
         Task<UserGet> GetUserAsync(int id);
         Task<List<UserGet>> GetUsersAsync();
+        Task<UserGet?> GetUserByLoginAsync(string login);
     }
 }
