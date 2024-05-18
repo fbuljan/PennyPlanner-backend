@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using PennyPlanner.Exceptions;
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 namespace PennyPlanner.Middleware
@@ -31,6 +31,23 @@ namespace PennyPlanner.Middleware
                     Detail = string.Empty,
                     Instance = "",
                     Title = $"User for id {ex.Id} not found.",
+                    Type = "Error"
+                };
+
+                var problemDetailsJson = JsonSerializer.Serialize(problemDetails);
+                await context.Response.WriteAsync(problemDetailsJson);
+            }
+            catch (ValidationException ex)
+            {
+                context.Response.ContentType = "application/problem+json";
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+                var problemDetails = new ProblemDetails()
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Detail = JsonSerializer.Serialize(ex.Errors),
+                    Instance = "",
+                    Title = "Validation Error",
                     Type = "Error"
                 };
 

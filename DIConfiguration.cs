@@ -1,6 +1,7 @@
 ﻿using PennyPlanner.Mapping;
 using PennyPlanner.Services;
 using PennyPlanner.Services.Interfaces;
+using PennyPlanner.Validation;
 
 namespace PennyPlanner
 {
@@ -11,6 +12,9 @@ namespace PennyPlanner
             services.AddAutoMapper(typeof(DtoEntityMapperProfile));
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
+
+            services.AddScoped<UserCreateValidator>();
+            services.AddScoped<UserUpdateValidator>();
         }
     }
 }

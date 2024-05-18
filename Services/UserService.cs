@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using PennyPlanner.DTOs.User;
 using PennyPlanner.Exceptions;
 using PennyPlanner.Models;
 using PennyPlanner.Repository;
 using PennyPlanner.Services.Interfaces;
 using PennyPlanner.Utils;
+using PennyPlanner.Validation;
 
 namespace PennyPlanner.Services
 {
@@ -12,15 +14,22 @@ namespace PennyPlanner.Services
     {
         private IMapper Mapper { get; }
         private IGenericRepository<User> UserRepository { get; }
+        private UserCreateValidator UserCreateValidator { get; }
+        private UserUpdateValidator UserUpdateValidator { get; }
 
-        public UserService(IMapper mapper, IGenericRepository<User> userRepository)
+        public UserService(IMapper mapper, IGenericRepository<User> userRepository, 
+            UserCreateValidator userCreateValidator, UserUpdateValidator userUpdateValidator)
         {
             Mapper = mapper;
             UserRepository = userRepository;
+            UserCreateValidator = userCreateValidator;
+            UserUpdateValidator = userUpdateValidator;
         }
 
         public async Task<int> CreateUserAsync(UserCreate userCreate)
         {
+            await UserCreateValidator.ValidateAndThrowAsync(userCreate);
+
             var user = Mapper.Map<User>(userCreate);
             user.RegistrationDate = DateTime.Now;
             user.Password = PasswordUtils.HashPassword(user.Password);
@@ -51,6 +60,8 @@ namespace PennyPlanner.Services
 
         public async Task UpdateUserAsync(UserUpdate userUpdate)
         {
+            await UserUpdateValidator.ValidateAndThrowAsync(userUpdate);
+
             var existingUser = await UserRepository.GetByIdAsync(userUpdate.Id) ?? throw new UserNotFoundException(userUpdate.Id);
             
             if (!string.IsNullOrWhiteSpace(userUpdate.Username)) 
