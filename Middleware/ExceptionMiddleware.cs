@@ -37,6 +37,23 @@ namespace PennyPlanner.Middleware
                 var problemDetailsJson = JsonSerializer.Serialize(problemDetails);
                 await context.Response.WriteAsync(problemDetailsJson);
             }
+            catch (UserAlreadyExistsException ex)
+            {
+                context.Response.ContentType = "application/problem+json";
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+                var problemDetails = new ProblemDetails()
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Detail = ex.Message,
+                    Instance = "",
+                    Title = $"User already exists.",
+                    Type = "Error"
+                };
+
+                var problemDetailsJson = JsonSerializer.Serialize(problemDetails);
+                await context.Response.WriteAsync(problemDetailsJson);
+            }
             catch (ValidationException ex)
             {
                 context.Response.ContentType = "application/problem+json";

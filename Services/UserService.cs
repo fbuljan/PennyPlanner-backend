@@ -30,6 +30,14 @@ namespace PennyPlanner.Services
         {
             await UserCreateValidator.ValidateAndThrowAsync(userCreate);
 
+            var users = await UserRepository.GetAsync(null, null);
+
+            if (users.Any(u => u.Username == userCreate.Username))
+                throw new UserAlreadyExistsException($"Username '{userCreate.Username}' is already taken.");
+
+            if (users.Any(u => u.Email == userCreate.Email))
+                throw new UserAlreadyExistsException($"Email '{userCreate.Email}' is already in use.");
+
             var user = Mapper.Map<User>(userCreate);
             user.RegistrationDate = DateTime.Now;
             user.Password = PasswordUtils.HashPassword(user.Password);
@@ -63,12 +71,22 @@ namespace PennyPlanner.Services
             await UserUpdateValidator.ValidateAndThrowAsync(userUpdate);
 
             var existingUser = await UserRepository.GetByIdAsync(userUpdate.Id) ?? throw new UserNotFoundException(userUpdate.Id);
-            
-            if (!string.IsNullOrWhiteSpace(userUpdate.Username)) 
+
+            var users = await UserRepository.GetAsync(null, null);
+
+            if (!string.IsNullOrWhiteSpace(userUpdate.Username))
+            {
+                if (users.Any(user => user.Username == userUpdate.Username))
+                    throw new UserAlreadyExistsException($"Username '{userUpdate.Username}' is already taken.");
                 existingUser.Username = userUpdate.Username;
+            }
 
             if (!string.IsNullOrWhiteSpace(userUpdate.Email))
+            {
+                if (users.Any(user => user.Email == userUpdate.Email))
+                    throw new UserAlreadyExistsException($"Email '{userUpdate.Email}' is already taken.");
                 existingUser.Email = userUpdate.Email;
+            }
 
             if (!string.IsNullOrWhiteSpace(userUpdate.Password))
                 existingUser.Password = PasswordUtils.HashPassword(userUpdate.Password);
