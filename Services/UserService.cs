@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using PennyPlanner.DTOs.User;
+using PennyPlanner.Exceptions;
 using PennyPlanner.Models;
 using PennyPlanner.Repository;
 using PennyPlanner.Services.Interfaces;
@@ -31,14 +32,14 @@ namespace PennyPlanner.Services
 
         public async Task DeleteUserAsync(UserDelete userDelete)
         {
-            var user = await UserRepository.GetByIdAsync(userDelete.Id);
+            var user = await UserRepository.GetByIdAsync(userDelete.Id) ?? throw new UserNotFoundException(userDelete.Id);
             UserRepository.Delete(user);
             await UserRepository.SaveChangesAsync();
         }
 
         public async Task<UserGet> GetUserAsync(int id)
         {
-            var user = await UserRepository.GetByIdAsync(id);
+            var user = await UserRepository.GetByIdAsync(id) ?? throw new UserNotFoundException(id);
             return Mapper.Map<UserGet>(user);
         }
 
@@ -50,7 +51,7 @@ namespace PennyPlanner.Services
 
         public async Task UpdateUserAsync(UserUpdate userUpdate)
         {
-            var existingUser = await UserRepository.GetByIdAsync(userUpdate.Id) ?? throw new Exception("User not found");
+            var existingUser = await UserRepository.GetByIdAsync(userUpdate.Id) ?? throw new UserNotFoundException(userUpdate.Id);
             
             if (!string.IsNullOrWhiteSpace(userUpdate.Username)) 
                 existingUser.Username = userUpdate.Username;

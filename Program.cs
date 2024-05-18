@@ -45,6 +45,7 @@ namespace PennyPlanner
             }
 
             app.UseMiddleware<RequestLoggingMiddleware>();
+            app.UseMiddleware<ExceptionMiddleware>();
 
             using (var scope = app.Services.CreateScope())
             {
