@@ -30,10 +30,21 @@ namespace PennyPlanner.Database
             builder.Entity<Goal>().HasKey(e => e.Id);
             builder.Entity<Transaction>().HasKey(e => e.Id);
 
-            builder.Entity<Account>().HasOne(e => e.User);
-            builder.Entity<Goal>().HasOne(e => e.User);
-            builder.Entity<Transaction>().HasOne(e => e.User);
-            builder.Entity<Transaction>().HasOne(e => e.Account);
+            builder.Entity<User>()
+                .HasMany(e => e.Accounts)
+                .WithOne(e => e.User);
+
+            builder.Entity<User>()
+                .HasMany(e => e.Goals)
+                .WithOne(e => e.User);
+
+            builder.Entity<User>()
+                .HasMany(e => e.Transactions)
+                .WithOne(e => e.User);
+
+            builder.Entity<Account>()
+                .HasMany(e => e.Transactions)
+                .WithOne(e => e.Account);
 
             base.OnModelCreating(builder);
         }
