@@ -56,13 +56,15 @@ namespace PennyPlanner.Services
 
         public async Task<UserGet> GetUserAsync(int id)
         {
-            var user = await UserRepository.GetByIdAsync(id) ?? throw new UserNotFoundException(id);
+            var user = await UserRepository.GetByIdAsync(id, u => u.Accounts, u => u.Transactions, u => u.Goals) 
+                ?? throw new UserNotFoundException(id);
+
             return Mapper.Map<UserGet>(user);
         }
 
         public async Task<List<UserGet>> GetUsersAsync()
         {
-            var users = await UserRepository.GetAsync(null, null);
+            var users = await UserRepository.GetAsync(null, null, u => u.Accounts, u => u.Transactions, u => u.Goals);
             return Mapper.Map<List<UserGet>>(users);
         }
 

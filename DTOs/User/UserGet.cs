@@ -11,7 +11,7 @@ namespace PennyPlanner.DTOs.User
         public bool GetNotifications { get; set; } = false;
         public string? Name { get; set; }
         public DateTime RegistrationDate { get; set; }
-        public List<Account> Accounts { get; set; } = default!;
+        public List<Models.Account> Accounts { get; set; } = default!;
         public List<Transaction> Transactions { get; set; } = default!;
         public List<Goal> Goals { get; set; } = default!;
     }

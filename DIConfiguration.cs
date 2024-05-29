@@ -12,6 +12,7 @@ namespace PennyPlanner
             services.AddAutoMapper(typeof(DtoEntityMapperProfile));
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IAccountService, AccountService>();
 
             services.AddScoped<UserCreateValidator>();
             services.AddScoped<UserUpdateValidator>();

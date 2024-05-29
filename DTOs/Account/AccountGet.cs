@@ -1,11 +1,10 @@
-﻿using System.Text.Json.Serialization;
+﻿using PennyPlanner.Models;
 
-namespace PennyPlanner.Models
+namespace PennyPlanner.DTOs.Account
 {
-    public class Account : BaseEntity
+    public class AccountGet
     {
-        [JsonIgnore]
-        public User User { get; set; } = default!;
+        public int Id { get; set; }
         public string Name { get; set; } = default!;
         public float Balance { get; set; }
         public string? Description { get; set; }

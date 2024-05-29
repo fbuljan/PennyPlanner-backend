@@ -25,6 +25,7 @@ namespace PennyPlanner
             DIConfiguration.RegisterServices(builder.Services);
             builder.Services.AddDbContext<ApplicationDbContext>();
             builder.Services.AddScoped<IGenericRepository<User>, GenericRepository<User>>();
+            builder.Services.AddScoped<IGenericRepository<Account>, GenericRepository<Account>>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

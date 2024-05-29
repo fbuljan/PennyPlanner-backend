@@ -54,6 +54,40 @@ namespace PennyPlanner.Middleware
                 var problemDetailsJson = JsonSerializer.Serialize(problemDetails);
                 await context.Response.WriteAsync(problemDetailsJson);
             }
+            catch (AccountNotFoundException ex)
+            {
+                context.Response.ContentType = "application/problem+json";
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+                var problemDetails = new ProblemDetails()
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Detail = string.Empty,
+                    Instance = "",
+                    Title = $"Account for id {ex.Id} not found.",
+                    Type = "Error"
+                };
+
+                var problemDetailsJson = JsonSerializer.Serialize(problemDetails);
+                await context.Response.WriteAsync(problemDetailsJson);
+            }
+            catch (AccountNameAlreadyInUseException ex)
+            {
+                context.Response.ContentType = "application/problem+json";
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+                var problemDetails = new ProblemDetails()
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Detail = string.Empty,
+                    Instance = "",
+                    Title = $"User with id {ex.Id} already has an account with name {ex.Name}.",
+                    Type = "Error"
+                };
+
+                var problemDetailsJson = JsonSerializer.Serialize(problemDetails);
+                await context.Response.WriteAsync(problemDetailsJson);
+            }
             catch (ValidationException ex)
             {
                 context.Response.ContentType = "application/problem+json";
