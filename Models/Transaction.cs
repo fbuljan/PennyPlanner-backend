@@ -10,6 +10,7 @@ namespace PennyPlanner.Models
         public DateTime Date { get; set; }
         public Periodicity Periodicity { get; set; } = Periodicity.None;
         public TransactionType TransactionType { get; set; }
+        public TransactionCategory TransactionCategory { get; set; }
         public string? Description { get; set; }
     }
 }
