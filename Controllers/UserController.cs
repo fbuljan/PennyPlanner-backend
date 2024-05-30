@@ -62,8 +62,7 @@ namespace PennyPlanner.Controllers
         }
 
         //[Authorize]
-        [HttpPut]
-        [Route("update")]
+        [HttpPut("update")]
         public async Task<IActionResult> UpdateUser(UserUpdate userUpdate)
         {
             await UserService.UpdateUserAsync(userUpdate);
@@ -71,9 +70,8 @@ namespace PennyPlanner.Controllers
             return Ok(user);
         }
 
-        [Authorize]
-        [HttpDelete]
-        [Route("delete")]
+        //[Authorize]
+        [HttpDelete("delete")]
         public async Task<IActionResult> DeleteUser(UserDelete userDelete)
         {
             await UserService.DeleteUserAsync(userDelete);
@@ -81,8 +79,7 @@ namespace PennyPlanner.Controllers
         }
 
         //[Authorize]
-        [HttpGet]
-        [Route("get/{id}")]
+        [HttpGet("get/{id}")]
         public async Task<IActionResult> GetUser(int id)
         {
             var user = await UserService.GetUserAsync(id);
@@ -90,8 +87,7 @@ namespace PennyPlanner.Controllers
         }
 
         //[Authorize]
-        [HttpGet]
-        [Route("get")]
+        [HttpGet("get")]
         public async Task<IActionResult> GetUsers()
         {
             var users = await UserService.GetUsersAsync();

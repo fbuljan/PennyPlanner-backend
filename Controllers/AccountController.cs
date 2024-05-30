@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PennyPlanner.DTOs.Account;
-using PennyPlanner.Services;
 using PennyPlanner.Services.Interfaces;
 
 namespace PennyPlanner.Controllers
@@ -27,6 +26,44 @@ namespace PennyPlanner.Controllers
 
             var response = new { success = true, account };
             return Ok(response);
+        }
+
+        //[Authorize]
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateAccount(AccountUpdate accountUpdate)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            await AccountService.UpdateAccountAsync(accountUpdate);
+            var account = AccountService.GetAccountAsync(accountUpdate.Id);
+
+            return Ok(account);
+        }
+
+        //[Authorize]
+        [HttpDelete("delete")]
+        public async Task<IActionResult> DeleteAccount(AccountDelete accountDelete)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            await AccountService.DeleteAccountAsync(accountDelete);
+            return Ok();
+        }
+
+        //[Authorize]
+        [HttpGet("get/{id}")]
+        public async Task<IActionResult> GetAccount(int id)
+        {
+            var account = await AccountService.GetAccountAsync(id);
+            return Ok(account);
+        }
+
+        //[Authorize]
+        [HttpGet("get")]
+        public async Task<IActionResult> GetAccounts()
+        {
+            var accounts = await AccountService.GetAccountsAsync();
+            return Ok(accounts);
         }
     }
 }
