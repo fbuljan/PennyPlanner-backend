@@ -20,12 +20,10 @@ namespace PennyPlanner.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateAccount(AccountCreate accountCreate)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
             var id = await AccountService.CreateAccountAsync(accountCreate);
             var account = await AccountService.GetAccountAsync(id);
-
             var response = new { success = true, account };
+
             return Ok(response);
         }
 
@@ -33,8 +31,6 @@ namespace PennyPlanner.Controllers
         [HttpPut("update")]
         public async Task<IActionResult> UpdateAccount(AccountUpdate accountUpdate)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
             await AccountService.UpdateAccountAsync(accountUpdate);
             var account = AccountService.GetAccountAsync(accountUpdate.Id);
 
@@ -45,8 +41,6 @@ namespace PennyPlanner.Controllers
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteAccount(AccountDelete accountDelete)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
             await AccountService.DeleteAccountAsync(accountDelete);
             return Ok();
         }

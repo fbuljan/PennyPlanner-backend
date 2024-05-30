@@ -21,8 +21,6 @@ namespace PennyPlanner.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser(UserCreate userCreate)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
             var id = await UserService.CreateUserAsync(userCreate);
             var user = await UserService.GetUserAsync(id);
 
@@ -33,8 +31,6 @@ namespace PennyPlanner.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> LoginUser(UserLogin userLogin)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
             UserGet? user = await UserService.GetUserByLoginAsync(userLogin.Login);
 
             if (user == null)
