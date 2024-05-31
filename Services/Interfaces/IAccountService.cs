@@ -1,4 +1,4 @@
-﻿using PennyPlanner.DTOs.Account;
+﻿using PennyPlanner.DTOs.Accounts;
 using PennyPlanner.Models;
 
 namespace PennyPlanner.Services.Interfaces
@@ -8,7 +8,7 @@ namespace PennyPlanner.Services.Interfaces
         Task<int> CreateAccountAsync(AccountCreate accountCreate);
         Task UpdateAccountAsync(AccountUpdate accountUpdate);
         Task DeleteAccountAsync(AccountDelete accountDelete);
-        //Task AddTransactionAsync(int accountId, Transaction transaction);
+        Task AddTransactionAsync(int accountId, Transaction transaction);
         Task<AccountGet> GetAccountAsync(int id);
         Task<List<AccountGet>> GetAccountsAsync();
     }

@@ -13,9 +13,12 @@ namespace PennyPlanner
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<ITransactionService, TransactionService>();
 
             services.AddScoped<UserCreateValidator>();
             services.AddScoped<UserUpdateValidator>();
+            services.AddScoped<TransactionCreateValidator>();
+            services.AddScoped<TransactionUpdateValidator>();
         }
     }
 }

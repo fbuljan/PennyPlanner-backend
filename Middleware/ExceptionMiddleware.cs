@@ -88,6 +88,23 @@ namespace PennyPlanner.Middleware
                 var problemDetailsJson = JsonSerializer.Serialize(problemDetails);
                 await context.Response.WriteAsync(problemDetailsJson);
             }
+            catch (TransactionNotFoundException ex)
+            {
+                context.Response.ContentType = "application/problem+json";
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+                var problemDetails = new ProblemDetails()
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Detail = string.Empty,
+                    Instance = "",
+                    Title = $"Transaction for id {ex.Id} not found.",
+                    Type = "Error"
+                };
+
+                var problemDetailsJson = JsonSerializer.Serialize(problemDetails);
+                await context.Response.WriteAsync(problemDetailsJson);
+            }
             catch (ValidationException ex)
             {
                 context.Response.ContentType = "application/problem+json";

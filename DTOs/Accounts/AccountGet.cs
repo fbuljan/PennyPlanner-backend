@@ -1,6 +1,6 @@
 ﻿using PennyPlanner.Models;
 
-namespace PennyPlanner.DTOs.Account
+namespace PennyPlanner.DTOs.Accounts
 {
     public class AccountGet
     {

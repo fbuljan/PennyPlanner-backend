@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
-using PennyPlanner.DTOs.Account;
-using PennyPlanner.DTOs.User;
+using PennyPlanner.DTOs.Accounts;
 using PennyPlanner.Exceptions;
 using PennyPlanner.Models;
 using PennyPlanner.Repository;
@@ -44,14 +43,14 @@ namespace PennyPlanner.Services
 
         public async Task UpdateAccountAsync(AccountUpdate accountUpdate)
         {
-            var account = await AccountRepository.GetByIdAsync(accountUpdate.Id) ?? throw new AccountNotFoundException(accountUpdate.Id);
+            var account = await AccountRepository.GetByIdAsync(accountUpdate.Id, a => a.User) ?? throw new AccountNotFoundException(accountUpdate.Id);
 
             if (!string.IsNullOrWhiteSpace(accountUpdate.Name) && accountUpdate.Name != account.Name)
             {
                 var user = account.User;
                 foreach (var otherAccount in user.Accounts)
                 {
-                    if (otherAccount.Name == account.Name)
+                    if (otherAccount.Name == accountUpdate.Name)
                         throw new AccountNameAlreadyInUseException(user.Id, account.Name);
                 }
                 account.Name = accountUpdate.Name;
@@ -73,20 +72,21 @@ namespace PennyPlanner.Services
 
         public async Task<AccountGet> GetAccountAsync(int id)
         {
-            var account = await AccountRepository.GetByIdAsync(id) ?? throw new AccountNotFoundException(id);
+            var account = await AccountRepository.GetByIdAsync(id, a => a.Transactions) ?? throw new AccountNotFoundException(id);
             return Mapper.Map<AccountGet>(account);
         }
 
         public async Task<List<AccountGet>> GetAccountsAsync()
         {
-            var accounts = await AccountRepository.GetAsync(null, null);
+            var accounts = await AccountRepository.GetAsync(null, null, a => a.Transactions);
             return Mapper.Map<List<AccountGet>>(accounts);
         }
 
-        //todo maybe change arguments, Transaction -> TransactionCreate?
         public async Task AddTransactionAsync(int accountId, Transaction transaction)
         {
-            var account = await AccountRepository.GetByIdAsync(accountId) ?? throw new AccountNotFoundException(accountId);
+            var account = await AccountRepository.GetByIdAsync(accountId, a => a.Transactions) ?? throw new AccountNotFoundException(accountId);
+            account.Transactions.Add(transaction);
+            await AccountRepository.SaveChangesAsync();
         }
     }
 }

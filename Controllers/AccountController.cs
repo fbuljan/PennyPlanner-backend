@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using PennyPlanner.DTOs.Account;
+﻿using Microsoft.AspNetCore.Mvc;
+using PennyPlanner.DTOs.Accounts;
 using PennyPlanner.Services.Interfaces;
 
 namespace PennyPlanner.Controllers
@@ -32,7 +31,7 @@ namespace PennyPlanner.Controllers
         public async Task<IActionResult> UpdateAccount(AccountUpdate accountUpdate)
         {
             await AccountService.UpdateAccountAsync(accountUpdate);
-            var account = AccountService.GetAccountAsync(accountUpdate.Id);
+            var account = await AccountService.GetAccountAsync(accountUpdate.Id);
 
             return Ok(account);
         }

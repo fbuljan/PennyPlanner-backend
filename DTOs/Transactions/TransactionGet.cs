@@ -1,14 +1,10 @@
 ﻿using PennyPlanner.Enums;
-using System.Text.Json.Serialization;
 
-namespace PennyPlanner.Models
+namespace PennyPlanner.DTOs.Transactions
 {
-    public class Transaction : BaseEntity
+    public class TransactionGet
     {
-        [JsonIgnore]
-        public User User { get; set; } = default!;
-        [JsonIgnore]
-        public Account Account { get; set; } = default!;
+        public int Id { get; set; }
         public int Amount { get; set; }
         public DateTime Date { get; set; }
         public TransactionType TransactionType { get; set; }

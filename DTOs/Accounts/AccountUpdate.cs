@@ -1,4 +1,4 @@
-﻿namespace PennyPlanner.DTOs.Account
+﻿namespace PennyPlanner.DTOs.Accounts
 {
     public class AccountUpdate
     {
