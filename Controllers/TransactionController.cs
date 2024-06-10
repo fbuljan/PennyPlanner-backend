@@ -20,7 +20,7 @@ namespace PennyPlanner.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateTransaction(TransactionCreate transactionCreate)
         {
-            var id = await TransactionService.CreateTransactionAsync(transactionCreate);
+            var id = await TransactionService.CreateTransactionAsync(transactionCreate, true);
             var transaction = await TransactionService.GetTransactionAsync(id);
             var response = new { success = true, transaction };
 

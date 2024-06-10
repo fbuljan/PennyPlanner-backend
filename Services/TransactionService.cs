@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using PennyPlanner.DTOs.Transactions;
+using PennyPlanner.Enums;
 using PennyPlanner.Exceptions;
 using PennyPlanner.Models;
 using PennyPlanner.Repository;
@@ -27,7 +28,7 @@ namespace PennyPlanner.Services
             TransactionUpdateValidator = transactionUpdateValidator;
         }
 
-        public async Task<int> CreateTransactionAsync(TransactionCreate transactionCreate)
+        public async Task<int> CreateTransactionAsync(TransactionCreate transactionCreate, bool save)
         {
             await TransactionCreateValidator.ValidateAndThrowAsync(transactionCreate);
 
@@ -40,9 +41,23 @@ namespace PennyPlanner.Services
             transaction.User = account.User;
             account.User.Transactions.Add(transaction);
             ApplyTransaction(account, transaction);
+
+            if (transactionCreate.OtherAccountId.HasValue && transactionCreate.TransactionType != TransactionType.Template)
+            {
+                transaction.OtherAccountId = transactionCreate.OtherAccountId.Value;
+                await CreateTransactionAsync(new TransactionCreate
+                {
+                    AccountId = transactionCreate.OtherAccountId.Value,
+                    Date = transactionCreate.Date,
+                    Amount = transactionCreate.Amount,
+                    TransactionType = (TransactionType)(-(int)transactionCreate.TransactionType),
+                    TransactionCategory = transactionCreate.TransactionCategory,
+                    Description = transactionCreate.Description
+                }, false);
+            }
             
             await TransactionRepository.InsertAsync(transaction);
-            await TransactionRepository.SaveChangesAsync();
+            if (save) await TransactionRepository.SaveChangesAsync();
 
             return transaction.Id;
         }
