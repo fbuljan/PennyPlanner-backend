@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PennyPlanner.DTOs.User;
 using PennyPlanner.Services.Interfaces;

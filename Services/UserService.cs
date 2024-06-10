@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using PennyPlanner.DTOs.Accounts;
 using PennyPlanner.DTOs.User;
 using PennyPlanner.Exceptions;
 using PennyPlanner.Models;
@@ -7,6 +8,7 @@ using PennyPlanner.Repository;
 using PennyPlanner.Services.Interfaces;
 using PennyPlanner.Utils;
 using PennyPlanner.Validation;
+using System.Security.Principal;
 
 namespace PennyPlanner.Services
 {
@@ -14,14 +16,16 @@ namespace PennyPlanner.Services
     {
         private IMapper Mapper { get; }
         private IGenericRepository<User> UserRepository { get; }
+        private IAccountService AccountService { get; }
         private UserCreateValidator UserCreateValidator { get; }
         private UserUpdateValidator UserUpdateValidator { get; }
 
-        public UserService(IMapper mapper, IGenericRepository<User> userRepository, 
+        public UserService(IMapper mapper, IGenericRepository<User> userRepository, IAccountService accountService, 
             UserCreateValidator userCreateValidator, UserUpdateValidator userUpdateValidator)
         {
             Mapper = mapper;
             UserRepository = userRepository;
+            AccountService = accountService;
             UserCreateValidator = userCreateValidator;
             UserUpdateValidator = userUpdateValidator;
         }
@@ -49,7 +53,19 @@ namespace PennyPlanner.Services
 
         public async Task DeleteUserAsync(UserDelete userDelete)
         {
-            var user = await UserRepository.GetByIdAsync(userDelete.Id) ?? throw new UserNotFoundException(userDelete.Id);
+            var user = await UserRepository.GetByIdAsync(userDelete.Id, user => user.Accounts) ?? throw new UserNotFoundException(userDelete.Id);
+            var accountsToDelete = new List<int>();
+
+            foreach (var account in user.Accounts)
+            {
+                accountsToDelete.Add(account.Id);
+            }
+
+            foreach (var id in accountsToDelete)
+            {
+                await AccountService.DeleteAccountAsync(new AccountDelete { Id = id });
+            }
+
             UserRepository.Delete(user);
             await UserRepository.SaveChangesAsync();
         }

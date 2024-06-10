@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using PennyPlanner.DTOs.Accounts;
+using PennyPlanner.DTOs.Transactions;
+using PennyPlanner.DTOs.User;
 using PennyPlanner.Exceptions;
 using PennyPlanner.Models;
 using PennyPlanner.Repository;
@@ -12,12 +14,15 @@ namespace PennyPlanner.Services
         private IMapper Mapper { get; }
         private IGenericRepository<Account> AccountRepository { get; }
         private IGenericRepository<User> UserRepository { get; }
+        private ITransactionService TransactionService { get; }
 
-        public AccountService(IMapper mapper, IGenericRepository<Account> accountRepository, IGenericRepository<User> userRepository)
+        public AccountService(IMapper mapper, IGenericRepository<Account> accountRepository, 
+            IGenericRepository<User> userRepository, ITransactionService transactionService)
         {
             Mapper = mapper;
             AccountRepository = accountRepository;
             UserRepository = userRepository;
+            TransactionService = transactionService;
         }
 
         public async Task<int> CreateAccountAsync(AccountCreate accountCreate)
@@ -65,7 +70,19 @@ namespace PennyPlanner.Services
 
         public async Task DeleteAccountAsync(AccountDelete accountDelete)
         {
-            var account = await AccountRepository.GetByIdAsync(accountDelete.Id) ?? throw new AccountNotFoundException(accountDelete.Id);
+            var account = await AccountRepository.GetByIdAsync(accountDelete.Id, account => account.Transactions) ?? throw new AccountNotFoundException(accountDelete.Id);
+            var transactionsToDelete = new List<int>();
+
+            foreach (var transaction in account.Transactions)
+            {
+                transactionsToDelete.Add(transaction.Id);
+            }
+
+            foreach (var id in transactionsToDelete)
+            {
+                await TransactionService.DeleteTransactionAsync(new TransactionDelete { Id = id });
+            }
+
             AccountRepository.Delete(account);
             await AccountRepository.SaveChangesAsync();
         }
