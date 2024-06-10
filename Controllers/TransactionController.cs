@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PennyPlanner.DTOs.Transactions;
+using PennyPlanner.Enums;
 using PennyPlanner.Services.Interfaces;
 
 namespace PennyPlanner.Controllers
@@ -58,6 +59,17 @@ namespace PennyPlanner.Controllers
         {
             var transactions = await TransactionService.GetTransactionsAsync();
             return Ok(transactions);
+        }
+
+        //[Authorize]
+        [HttpGet("categories")]
+        public IActionResult GetTransactionCategories()
+        {
+            var categories = Enum.GetValues(typeof(TransactionCategory))
+                               .Cast<TransactionCategory>()
+                               .Select(e => new { Name = e.ToString(), Value = (int)e })
+                               .ToList();
+            return Ok(categories);
         }
     }
 }
