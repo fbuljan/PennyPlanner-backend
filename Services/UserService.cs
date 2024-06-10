@@ -109,9 +109,6 @@ namespace PennyPlanner.Services
             if (!string.IsNullOrWhiteSpace(userUpdate.Password))
                 existingUser.Password = PasswordUtils.HashPassword(userUpdate.Password);
 
-            if (userUpdate.GetNotifications.HasValue)
-                existingUser.GetNotifications = userUpdate.GetNotifications.Value;
-
             if (!string.IsNullOrWhiteSpace(userUpdate.Name))
                 existingUser.Name = userUpdate.Name;
 
