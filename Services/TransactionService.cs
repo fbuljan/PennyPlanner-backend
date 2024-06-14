@@ -70,17 +70,17 @@ namespace PennyPlanner.Services
                 ?? throw new TransactionNotFoundException(transactionUpdate.Id);
             var account = transaction.Account;
 
-            if (transactionUpdate.Amount.HasValue && transactionUpdate.Amount.Value != transaction.Amount)
-            {
-                ApplyTransaction(account, transaction, true);
-                transaction.Amount = transactionUpdate.Amount.Value;
-                ApplyTransaction(account, transaction);
-            }
-
             if (transactionUpdate.TransactionType.HasValue && transactionUpdate.TransactionType.Value != transaction.TransactionType)
             {
                 ApplyTransaction(account, transaction, true);
                 transaction.TransactionType = transactionUpdate.TransactionType.Value;
+                ApplyTransaction(account, transaction);
+            }
+
+            if (transactionUpdate.Amount.HasValue && transactionUpdate.Amount.Value != transaction.Amount)
+            {
+                ApplyTransaction(account, transaction, true);
+                transaction.Amount = transactionUpdate.Amount.Value;
                 ApplyTransaction(account, transaction);
             }
 
