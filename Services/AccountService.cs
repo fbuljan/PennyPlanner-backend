@@ -48,15 +48,16 @@ namespace PennyPlanner.Services
 
         public async Task UpdateAccountAsync(AccountUpdate accountUpdate)
         {
-            var account = await AccountRepository.GetByIdAsync(accountUpdate.Id, a => a.User) ?? throw new AccountNotFoundException(accountUpdate.Id);
+            var account = await AccountRepository.GetByIdAsync(accountUpdate.Id, a => a.User, a => a.User.Accounts) ?? throw new AccountNotFoundException(accountUpdate.Id);
 
             if (!string.IsNullOrWhiteSpace(accountUpdate.Name) && accountUpdate.Name != account.Name)
             {
                 var user = account.User;
                 foreach (var otherAccount in user.Accounts)
                 {
+                    await Console.Out.WriteLineAsync(otherAccount.Name);
                     if (otherAccount.Name == accountUpdate.Name)
-                        throw new AccountNameAlreadyInUseException(user.Id, account.Name);
+                        throw new AccountNameAlreadyInUseException(user.Id, otherAccount.Name);
                 }
                 account.Name = accountUpdate.Name;
             }
