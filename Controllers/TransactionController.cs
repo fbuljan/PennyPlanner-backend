@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PennyPlanner.DTOs.Transactions;
 using PennyPlanner.Enums;
 using PennyPlanner.Services.Interfaces;
@@ -16,7 +17,7 @@ namespace PennyPlanner.Controllers
             TransactionService = transactionService;
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateTransaction(TransactionCreate transactionCreate)
         {
@@ -27,7 +28,7 @@ namespace PennyPlanner.Controllers
             return Ok(response);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPut("update")]
         public async Task<IActionResult> UpdateTransaction(TransactionUpdate transactionUpdate)
         {
@@ -37,7 +38,7 @@ namespace PennyPlanner.Controllers
             return Ok(transaction);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteTransaction(TransactionDelete transactionDelete)
         {
@@ -45,7 +46,7 @@ namespace PennyPlanner.Controllers
             return Ok();
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetTransaction(int id)
         {
@@ -53,7 +54,7 @@ namespace PennyPlanner.Controllers
             return Ok(transaction);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("get")]
         public async Task<IActionResult> GetTransactions()
         {
@@ -61,7 +62,7 @@ namespace PennyPlanner.Controllers
             return Ok(transactions);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("categories")]
         public IActionResult GetTransactionCategories()
         {

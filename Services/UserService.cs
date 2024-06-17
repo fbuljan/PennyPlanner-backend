@@ -92,14 +92,14 @@ namespace PennyPlanner.Services
 
             var users = await UserRepository.GetAsync(null, null);
 
-            if (!string.IsNullOrWhiteSpace(userUpdate.Username))
+            if (!string.IsNullOrWhiteSpace(userUpdate.Username) && userUpdate.Username != existingUser.Username)
             {
                 if (users.Any(user => user.Username == userUpdate.Username))
                     throw new UserAlreadyExistsException($"Username '{userUpdate.Username}' is already taken.");
                 existingUser.Username = userUpdate.Username;
             }
 
-            if (!string.IsNullOrWhiteSpace(userUpdate.Email))
+            if (!string.IsNullOrWhiteSpace(userUpdate.Email) && userUpdate.Email != existingUser.Email)
             {
                 if (users.Any(user => user.Email == userUpdate.Email))
                     throw new UserAlreadyExistsException($"Email '{userUpdate.Email}' is already taken.");

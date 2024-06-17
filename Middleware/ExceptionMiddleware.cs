@@ -47,7 +47,7 @@ namespace PennyPlanner.Middleware
                     Status = StatusCodes.Status400BadRequest,
                     Detail = ex.Message,
                     Instance = "",
-                    Title = $"User already exists.",
+                    Title = ex.ErrorMessage != null ? ex.ErrorMessage : $"User already exists.",
                     Type = "Error"
                 };
 
