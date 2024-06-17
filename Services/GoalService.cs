@@ -59,10 +59,28 @@ namespace PennyPlanner.Services
         {
             await GoalUpdateValidator.ValidateAndThrowAsync(goalUpdate);
 
-            var goal = await GoalRepository.GetByIdAsync(goalUpdate.Id)
-                ?? throw new GoalNotFoundException(goalUpdate.Id);
+            var goal = await GoalRepository.GetByIdAsync(goalUpdate.Id) ?? throw new GoalNotFoundException(goalUpdate.Id);
 
-            Mapper.Map(goalUpdate, goal);
+            if (!string.IsNullOrEmpty(goalUpdate.Name))
+            {
+                goal.Name = goalUpdate.Name;
+            }
+
+            if (goalUpdate.EndDate.HasValue)
+            {
+                goal.EndDate = goalUpdate.EndDate.Value;
+            }
+
+            if (goalUpdate.TargetValue.HasValue)
+            {
+                goal.TargetValue = goalUpdate.TargetValue.Value;
+            }
+
+            if (goalUpdate.CurrentValue.HasValue)
+            {
+                goal.CurrentValue = goalUpdate.CurrentValue.Value;
+            }
+
             GoalRepository.Update(goal);
             await GoalRepository.SaveChangesAsync();
         }

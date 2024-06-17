@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using PennyPlanner.DTOs.Accounts;
+using PennyPlanner.DTOs.Goals;
 using PennyPlanner.DTOs.User;
 using PennyPlanner.Exceptions;
 using PennyPlanner.Models;
@@ -17,15 +18,17 @@ namespace PennyPlanner.Services
         private IMapper Mapper { get; }
         private IGenericRepository<User> UserRepository { get; }
         private IAccountService AccountService { get; }
+        private IGoalService GoalService { get; }
         private UserCreateValidator UserCreateValidator { get; }
         private UserUpdateValidator UserUpdateValidator { get; }
 
         public UserService(IMapper mapper, IGenericRepository<User> userRepository, IAccountService accountService, 
-            UserCreateValidator userCreateValidator, UserUpdateValidator userUpdateValidator)
+            IGoalService goalService, UserCreateValidator userCreateValidator, UserUpdateValidator userUpdateValidator)
         {
             Mapper = mapper;
             UserRepository = userRepository;
             AccountService = accountService;
+            GoalService = goalService;
             UserCreateValidator = userCreateValidator;
             UserUpdateValidator = userUpdateValidator;
         }
@@ -53,8 +56,11 @@ namespace PennyPlanner.Services
 
         public async Task DeleteUserAsync(UserDelete userDelete)
         {
-            var user = await UserRepository.GetByIdAsync(userDelete.Id, user => user.Accounts) ?? throw new UserNotFoundException(userDelete.Id);
+            var user = await UserRepository.GetByIdAsync(userDelete.Id, user => user.Accounts, user => user.Goals) 
+                ?? throw new UserNotFoundException(userDelete.Id);
+
             var accountsToDelete = new List<int>();
+            var goalsToDelete = new List<int>();
 
             foreach (var account in user.Accounts)
             {
@@ -64,6 +70,16 @@ namespace PennyPlanner.Services
             foreach (var id in accountsToDelete)
             {
                 await AccountService.DeleteAccountAsync(new AccountDelete { Id = id });
+            }
+
+            foreach (var goal in user.Goals)
+            {
+                goalsToDelete.Add(goal.Id);
+            }
+
+            foreach (var id in goalsToDelete)
+            {
+                await GoalService.DeleteGoalAsync(new GoalDelete { Id = id });
             }
 
             UserRepository.Delete(user);
