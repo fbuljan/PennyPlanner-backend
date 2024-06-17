@@ -14,11 +14,14 @@ namespace PennyPlanner
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ITransactionService, TransactionService>();
+            services.AddScoped<IGoalService, GoalService>();
 
             services.AddScoped<UserCreateValidator>();
             services.AddScoped<UserUpdateValidator>();
             services.AddScoped<TransactionCreateValidator>();
             services.AddScoped<TransactionUpdateValidator>();
+            services.AddScoped<GoalCreateValidator>();
+            services.AddScoped<GoalUpdateValidator>();
         }
     }
 }

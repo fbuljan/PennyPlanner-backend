@@ -88,6 +88,23 @@ namespace PennyPlanner.Middleware
                 var problemDetailsJson = JsonSerializer.Serialize(problemDetails);
                 await context.Response.WriteAsync(problemDetailsJson);
             }
+            catch (GoalNotFoundException ex)
+            {
+                context.Response.ContentType = "application/problem+json";
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+                var problemDetails = new ProblemDetails()
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Detail = string.Empty,
+                    Instance = "",
+                    Title = $"Goal for id {ex.Id} not found.",
+                    Type = "Error"
+                };
+
+                var problemDetailsJson = JsonSerializer.Serialize(problemDetails);
+                await context.Response.WriteAsync(problemDetailsJson);
+            }
             catch (TransactionNotFoundException ex)
             {
                 context.Response.ContentType = "application/problem+json";
@@ -124,7 +141,6 @@ namespace PennyPlanner.Middleware
             }
             catch (Exception ex)
             {
-
                 context.Response.ContentType = "application/problem+json";
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 

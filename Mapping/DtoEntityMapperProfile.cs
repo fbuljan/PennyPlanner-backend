@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using PennyPlanner.DTOs.Accounts;
+using PennyPlanner.DTOs.Goals;
 using PennyPlanner.DTOs.Transactions;
 using PennyPlanner.DTOs.User;
 using PennyPlanner.Models;
@@ -21,6 +22,10 @@ namespace PennyPlanner.Mapping
             CreateMap<TransactionCreate, Transaction>().ForMember(dest => dest.Id, opt => opt.Ignore());
             CreateMap<TransactionUpdate, Transaction>();
             CreateMap<Transaction, TransactionGet>();
+
+            CreateMap<GoalCreate, Goal>().ForMember(dest => dest.Id, opt => opt.Ignore());
+            CreateMap<GoalUpdate, Goal>();
+            CreateMap<Goal, GoalGet>();
         }
     }
 }

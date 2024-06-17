@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using PennyPlanner.DTOs.Accounts;
 using PennyPlanner.DTOs.Transactions;
-using PennyPlanner.DTOs.User;
 using PennyPlanner.Exceptions;
 using PennyPlanner.Models;
 using PennyPlanner.Repository;
