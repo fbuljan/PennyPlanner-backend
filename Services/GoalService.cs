@@ -7,6 +7,7 @@ using PennyPlanner.Models;
 using PennyPlanner.Repository;
 using PennyPlanner.Services.Interfaces;
 using PennyPlanner.Validation;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PennyPlanner.Services
 {
@@ -143,13 +144,13 @@ namespace PennyPlanner.Services
                 }
                 else if (goal.GoalType == GoalType.MonthlyIncome)
                 {
-                    if (transaction.TransactionType != TransactionType.Income) continue;
+                    if (transaction.TransactionType != TransactionType.Income || transaction.Date.AddDays(1) < goal.StartDate) continue;
 
                     goal.CurrentValue += amount;
                 }
                 else if (goal.GoalType == GoalType.MonthlyExpenseReduction)
                 {
-                    if (transaction.TransactionType != TransactionType.Expense) continue;
+                    if (transaction.TransactionType != TransactionType.Expense || transaction.Date.AddDays(1) < goal.StartDate) continue;
 
                     goal.CurrentValue += amount * -1;
                 }
