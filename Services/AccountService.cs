@@ -95,7 +95,7 @@ namespace PennyPlanner.Services
 
         public async Task<List<AccountGet>> GetAccountsAsync()
         {
-            var accounts = await AccountRepository.GetAsync(null, null, a => a.Transactions);
+            var accounts = await AccountRepository.GetAsync(null, null, null, a => a.Transactions);
             return Mapper.Map<List<AccountGet>>(accounts);
         }
 

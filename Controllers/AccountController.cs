@@ -16,7 +16,7 @@ namespace PennyPlanner.Controllers
             AccountService = accountService;
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateAccount(AccountCreate accountCreate)
         {
@@ -27,7 +27,7 @@ namespace PennyPlanner.Controllers
             return Ok(response);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpPut("update")]
         public async Task<IActionResult> UpdateAccount(AccountUpdate accountUpdate)
         {
@@ -37,7 +37,7 @@ namespace PennyPlanner.Controllers
             return Ok(account);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteAccount(AccountDelete accountDelete)
         {
@@ -45,7 +45,7 @@ namespace PennyPlanner.Controllers
             return Ok();
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetAccount(int id)
         {
@@ -53,7 +53,7 @@ namespace PennyPlanner.Controllers
             return Ok(account);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet("get")]
         public async Task<IActionResult> GetAccounts()
         {

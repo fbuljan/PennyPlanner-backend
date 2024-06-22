@@ -15,15 +15,17 @@ namespace PennyPlanner.Services
         private IMapper Mapper { get; }
         private IGenericRepository<Transaction> TransactionRepository { get; }
         private IGenericRepository<Account> AccountRepository { get; }
+        private IGoalService GoalService { get; }
         private TransactionCreateValidator TransactionCreateValidator { get; }
         private TransactionUpdateValidator TransactionUpdateValidator { get; }
 
-        public TransactionService(IMapper mapper, IGenericRepository<Transaction> transactionRepository,
-            IGenericRepository<Account> accountRepository, TransactionCreateValidator transactionCreateValidator, TransactionUpdateValidator transactionUpdateValidator)
+        public TransactionService(IMapper mapper, IGenericRepository<Transaction> transactionRepository, IGenericRepository<Account> accountRepository, 
+            IGoalService goalService, TransactionCreateValidator transactionCreateValidator, TransactionUpdateValidator transactionUpdateValidator)
         {
             Mapper = mapper;
             TransactionRepository = transactionRepository;
             AccountRepository = accountRepository;
+            GoalService = goalService;
             TransactionCreateValidator = transactionCreateValidator;
             TransactionUpdateValidator = transactionUpdateValidator;
         }
@@ -40,7 +42,7 @@ namespace PennyPlanner.Services
             account.Transactions.Add(transaction);
             transaction.User = account.User;
             account.User.Transactions.Add(transaction);
-            ApplyTransaction(account, transaction);
+            await ApplyTransaction(account, transaction, transaction.User);
 
             if (transactionCreate.OtherAccountId.HasValue && transactionCreate.TransactionType != TransactionType.Template)
             {
@@ -66,22 +68,23 @@ namespace PennyPlanner.Services
         {
             await TransactionUpdateValidator.ValidateAndThrowAsync(transactionUpdate);
 
-            var transaction = await TransactionRepository.GetByIdAsync(transactionUpdate.Id, t => t.Account)
+            var transaction = await TransactionRepository.GetByIdAsync(transactionUpdate.Id, t => t.Account, t => t.User)
                 ?? throw new TransactionNotFoundException(transactionUpdate.Id);
             var account = transaction.Account;
+            var user = transaction.User;
 
             if (transactionUpdate.TransactionType.HasValue && transactionUpdate.TransactionType.Value != transaction.TransactionType)
             {
-                ApplyTransaction(account, transaction, true);
+                await ApplyTransaction(account, transaction, user, true);
                 transaction.TransactionType = transactionUpdate.TransactionType.Value;
-                ApplyTransaction(account, transaction);
+                await ApplyTransaction(account, transaction, user);
             }
 
             if (transactionUpdate.Amount.HasValue && transactionUpdate.Amount.Value != transaction.Amount)
             {
-                ApplyTransaction(account, transaction, true);
+                await ApplyTransaction(account, transaction, user, true);
                 transaction.Amount = transactionUpdate.Amount.Value;
-                ApplyTransaction(account, transaction);
+                await ApplyTransaction(account, transaction, user);
             }
 
             if (transactionUpdate.TransactionCategory.HasValue)
@@ -99,10 +102,11 @@ namespace PennyPlanner.Services
 
         public async Task DeleteTransactionAsync(TransactionDelete transactionDelete)
         {
-            var transaction = await TransactionRepository.GetByIdAsync(transactionDelete.Id, t => t.Account)
+            var transaction = await TransactionRepository.GetByIdAsync(transactionDelete.Id, t => t.Account, t => t.User)
                 ?? throw new TransactionNotFoundException(transactionDelete.Id);
 
-            if (transactionDelete.ResetAmount) ApplyTransaction(transaction.Account, transaction, true);
+            if (transactionDelete.ResetAmount) 
+                await ApplyTransaction(transaction.Account, transaction, transaction.User, true);
 
             TransactionRepository.Delete(transaction);
             await TransactionRepository.SaveChangesAsync();
@@ -116,14 +120,16 @@ namespace PennyPlanner.Services
 
         public async Task<List<TransactionGet>> GetTransactionsAsync()
         {
-            var transactions = await TransactionRepository.GetAsync(null, null);
+            var transactions = await TransactionRepository.GetAsync(null, null, null);
             return Mapper.Map<List<TransactionGet>>(transactions);
         }
 
-        private void ApplyTransaction(Account account, Transaction transaction, bool reverse = false)
+        private async Task ApplyTransaction(Account account, Transaction transaction, User user, bool reverse = false)
         {
             int reverseMultiplier = reverse ? -1 : 1;
-            account.Balance += transaction.Amount * (int)transaction.TransactionType * reverseMultiplier;
+            int amount = transaction.Amount * (int)transaction.TransactionType * reverseMultiplier;
+            account.Balance += amount;
+            await GoalService.UpdateGoalsProgress(user, account, transaction, amount);
         }
     }
 }

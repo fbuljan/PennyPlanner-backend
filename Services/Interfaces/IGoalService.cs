@@ -1,4 +1,5 @@
 ﻿using PennyPlanner.DTOs.Goals;
+using PennyPlanner.Models;
 
 namespace PennyPlanner.Services.Interfaces
 {
@@ -9,5 +10,6 @@ namespace PennyPlanner.Services.Interfaces
         Task DeleteGoalAsync(GoalDelete goalDelete);
         Task<GoalGet> GetGoalAsync(int id);
         Task<List<GoalGet>> GetGoalsAsync();
+        Task UpdateGoalsProgress(User user, Account account, Transaction transaction, float amount);
     }
 }

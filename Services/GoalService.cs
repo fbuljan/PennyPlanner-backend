@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using PennyPlanner.DTOs.Goals;
+using PennyPlanner.Enums;
 using PennyPlanner.Exceptions;
 using PennyPlanner.Models;
 using PennyPlanner.Repository;
@@ -34,14 +35,27 @@ namespace PennyPlanner.Services
             await GoalCreateValidator.ValidateAndThrowAsync(goalCreate);
 
             var goal = Mapper.Map<Goal>(goalCreate);
-            goal.CurrentValue = 0;
             goal.StartDate = DateTime.Now;
 
-            if (goalCreate.AccountId.HasValue)
+            if (goalCreate.GoalType == GoalType.AccountMoney && goalCreate.AccountId.HasValue)
             {
                 goal.Account = await AccountRepository.GetByIdAsync(goalCreate.AccountId.Value)
                     ?? throw new AccountNotFoundException(goalCreate.AccountId.Value);
+
+                goal.CurrentValue = goal.Account.Balance;
             }
+            else if (goal.GoalType == GoalType.TotalMoney)
+            {
+                goal.CurrentValue = await GetUserTotalBalanceAsync(goalCreate.UserId);
+            }
+            else if (goal.GoalType is GoalType.MonthlyIncome or GoalType.MonthlyExpenseReduction)
+            {
+                goal.CurrentValue = 0;
+                goal.EndDate = DateTime.Now.AddMonths(1);
+            }
+
+            goal.IsAchieved = goal.GoalType == GoalType.MonthlyExpenseReduction ?
+                goal.CurrentValue <= goal.TargetValue : goal.CurrentValue >= goal.TargetValue;
 
             var user = await UserRepository.GetByIdAsync(goalCreate.UserId, u => u.Goals)
                 ?? throw new UserNotFoundException(goalCreate.UserId);
@@ -104,8 +118,60 @@ namespace PennyPlanner.Services
 
         public async Task<List<GoalGet>> GetGoalsAsync()
         {
-            var goals = await GoalRepository.GetAsync(null, null, g => g.Account!);
+            var goals = await GoalRepository.GetAsync(null, null, null, g => g.Account!);
             return Mapper.Map<List<GoalGet>>(goals);
+        }
+
+        public async Task UpdateGoalsProgress(User user, Account account, Transaction transaction, float amount)
+        {
+            if (transaction.TransactionType == TransactionType.Template) return;
+
+            var userGoals = await GoalRepository.GetAsync(null, null, 
+                g => g.User.Id == user.Id, g => g.Account!, g => g.User);
+
+            foreach (var goal in userGoals)
+            {
+                if (goal.GoalType == GoalType.TotalMoney)
+                {
+                    goal.CurrentValue += amount;
+                }
+                else if (goal.GoalType == GoalType.AccountMoney)
+                {
+                    if (goal.Account == null || goal.Account.Id != account.Id) continue;
+
+                    goal.CurrentValue += amount;
+                }
+                else if (goal.GoalType == GoalType.MonthlyIncome)
+                {
+                    if (transaction.TransactionType != TransactionType.Income) continue;
+
+                    goal.CurrentValue += amount;
+                }
+                else if (goal.GoalType == GoalType.MonthlyExpenseReduction)
+                {
+                    if (transaction.TransactionType != TransactionType.Expense) continue;
+
+                    goal.CurrentValue += amount * -1;
+                }
+
+                goal.IsAchieved = goal.GoalType == GoalType.MonthlyExpenseReduction ? 
+                    goal.CurrentValue <= goal.TargetValue : goal.CurrentValue >= goal.TargetValue;
+
+                GoalRepository.Update(goal);
+            }
+        }
+
+        private async Task<float> GetUserTotalBalanceAsync(int userId)
+        {
+            float totalBalance = 0;
+            var user = await UserRepository.GetByIdAsync(userId, u => u.Accounts) ?? throw new UserNotFoundException(userId);
+
+            foreach (var account in user.Accounts)
+            {
+                totalBalance += account.Balance;
+            }
+
+            return totalBalance;
         }
     }
 }

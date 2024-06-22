@@ -37,7 +37,7 @@ namespace PennyPlanner.Services
         {
             await UserCreateValidator.ValidateAndThrowAsync(userCreate);
 
-            var users = await UserRepository.GetAsync(null, null);
+            var users = await UserRepository.GetAsync(null, null, null);
 
             if (users.Any(u => u.Username == userCreate.Username))
                 throw new UserAlreadyExistsException($"Username '{userCreate.Username}' is already taken.");
@@ -96,7 +96,9 @@ namespace PennyPlanner.Services
 
         public async Task<List<UserGet>> GetUsersAsync()
         {
-            var users = await UserRepository.GetAsync(null, null, u => u.Accounts, u => u.Transactions, u => u.Goals);
+            var users = await UserRepository.GetAsync(null, null, null, 
+                u => u.Accounts, u => u.Transactions, u => u.Goals);
+
             return Mapper.Map<List<UserGet>>(users);
         }
 
@@ -106,7 +108,7 @@ namespace PennyPlanner.Services
 
             var existingUser = await UserRepository.GetByIdAsync(userUpdate.Id) ?? throw new UserNotFoundException(userUpdate.Id);
 
-            var users = await UserRepository.GetAsync(null, null);
+            var users = await UserRepository.GetAsync(null, null, null);
 
             if (!string.IsNullOrWhiteSpace(userUpdate.Username) && userUpdate.Username != existingUser.Username)
             {
