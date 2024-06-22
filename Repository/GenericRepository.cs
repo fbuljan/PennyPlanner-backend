@@ -23,9 +23,14 @@
             DbSet.Remove(entity);
         }
 
-        public async Task<List<T>> GetAsync(int? skip, int? take, params Expression<Func<T, object>>[] includes)
+        public async Task<List<T>> GetAsync(int? skip, int? take, Expression<Func<T, bool>>? filter = null, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = DbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
 
             foreach (var include in includes)
                 query = query.Include(include);
