@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using PennyPlanner.DTOs.Goals;
 using PennyPlanner.DTOs.Transactions;
 using PennyPlanner.Enums;
 using PennyPlanner.Exceptions;
@@ -42,7 +43,7 @@ namespace PennyPlanner.Services
             account.Transactions.Add(transaction);
             transaction.User = account.User;
             account.User.Transactions.Add(transaction);
-            await ApplyTransaction(account, transaction, transaction.User);
+            await ApplyTransaction(account, transaction, transaction.User, false, !save || transactionCreate.OtherAccountId != null);
 
             if (transactionCreate.OtherAccountId.HasValue && transactionCreate.TransactionType != TransactionType.Template)
             {
@@ -124,12 +125,19 @@ namespace PennyPlanner.Services
             return Mapper.Map<List<TransactionGet>>(transactions);
         }
 
-        private async Task ApplyTransaction(Account account, Transaction transaction, User user, bool reverse = false)
+        private async Task ApplyTransaction(Account account, Transaction transaction, User user, bool reverse = false, bool internalTransaction = false)
         {
             int reverseMultiplier = reverse ? -1 : 1;
             int amount = transaction.Amount * (int)transaction.TransactionType * reverseMultiplier;
             account.Balance += amount;
-            await GoalService.UpdateGoalsProgress(user, account, transaction, amount);
+            await GoalService.UpdateGoalsProgress(new GoalUpdateProgress
+            {
+                User = user,
+                Account = account,
+                Transaction = transaction,
+                Amount = amount,
+                InternalTransaction = internalTransaction
+            });
         }
     }
 }

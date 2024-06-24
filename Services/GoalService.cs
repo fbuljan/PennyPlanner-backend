@@ -123,39 +123,39 @@ namespace PennyPlanner.Services
             return Mapper.Map<List<GoalGet>>(goals);
         }
 
-        public async Task UpdateGoalsProgress(User user, Account account, Transaction transaction, float amount)
+        public async Task UpdateGoalsProgress(GoalUpdateProgress goalUpdateProgress)
         {
-            if (transaction.TransactionType == TransactionType.Template) return;
+            if (goalUpdateProgress.Transaction.TransactionType == TransactionType.Template) return;
 
-            var userGoals = await GoalRepository.GetAsync(null, null, 
-                g => g.User.Id == user.Id, g => g.Account!, g => g.User);
+            var userGoals = await GoalRepository.GetAsync(null, null,
+                g => g.User.Id == goalUpdateProgress.User.Id, g => g.Account!, g => g.User);
 
             foreach (var goal in userGoals)
             {
                 if (goal.GoalType == GoalType.TotalMoney)
                 {
-                    goal.CurrentValue += amount;
+                    goal.CurrentValue += goalUpdateProgress.Amount;
                 }
                 else if (goal.GoalType == GoalType.AccountMoney)
                 {
-                    if (goal.Account == null || goal.Account.Id != account.Id) continue;
+                    if (goal.Account == null || goal.Account.Id != goalUpdateProgress.Account.Id) continue;
 
-                    goal.CurrentValue += amount;
+                    goal.CurrentValue += goalUpdateProgress.Amount;
                 }
                 else if (goal.GoalType == GoalType.MonthlyIncome)
                 {
-                    if (transaction.TransactionType != TransactionType.Income || transaction.Date.AddDays(1) < goal.StartDate) continue;
+                    if (goalUpdateProgress.Transaction.TransactionType != TransactionType.Income || goalUpdateProgress.Transaction.Date.AddDays(1) < goal.StartDate || goalUpdateProgress.InternalTransaction) continue;
 
-                    goal.CurrentValue += amount;
+                    goal.CurrentValue += goalUpdateProgress.Amount;
                 }
                 else if (goal.GoalType == GoalType.MonthlyExpenseReduction)
                 {
-                    if (transaction.TransactionType != TransactionType.Expense || transaction.Date.AddDays(1) < goal.StartDate) continue;
+                    if (goalUpdateProgress.Transaction.TransactionType != TransactionType.Expense || goalUpdateProgress.Transaction.Date.AddDays(1) < goal.StartDate || goalUpdateProgress.InternalTransaction) continue;
 
-                    goal.CurrentValue += amount * -1;
+                    goal.CurrentValue += -goalUpdateProgress.Amount;
                 }
 
-                goal.IsAchieved = goal.GoalType == GoalType.MonthlyExpenseReduction ? 
+                goal.IsAchieved = goal.GoalType == GoalType.MonthlyExpenseReduction ?
                     goal.CurrentValue <= goal.TargetValue : goal.CurrentValue >= goal.TargetValue;
 
                 GoalRepository.Update(goal);
