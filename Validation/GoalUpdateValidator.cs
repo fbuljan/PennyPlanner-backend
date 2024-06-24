@@ -8,6 +8,7 @@ namespace PennyPlanner.Validation
         public GoalUpdateValidator()
         {
             RuleFor(x => x.Id).GreaterThan(0);
+            RuleFor(x => x.TargetValue).GreaterThanOrEqualTo(0);
             RuleFor(x => x.EndDate)
                 .Must(BeAValidDate).WithMessage("End date must be a valid date.")
                 .GreaterThanOrEqualTo(DateTime.Now).WithMessage("End date cannot be earlier than today.");
