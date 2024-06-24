@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PennyPlanner.DTOs.Goals;
+using PennyPlanner.Enums;
 using PennyPlanner.Services.Interfaces;
+using PennyPlanner.Utils;
 
 namespace PennyPlanner.Controllers
 {
@@ -59,6 +61,17 @@ namespace PennyPlanner.Controllers
         {
             var goals = await GoalService.GetGoalsAsync();
             return Ok(goals);
+        }
+
+        //[Authorize]
+        [HttpGet("types")]
+        public IActionResult GetGoalTypes()
+        {
+            var types = Enum.GetValues(typeof(GoalType))
+                               .Cast<GoalType>()
+                               .Select(e => new { Name = NamingUtils.ConvertToCamelCaseWithSpaces(e.ToString()), Value = (int)e })
+                               .ToList();
+            return Ok(types);
         }
     }
 }
