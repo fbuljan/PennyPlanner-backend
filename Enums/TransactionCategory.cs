@@ -11,6 +11,7 @@
         Education,
         Utilities,
         Salary,
+        Internal,
         Other
     }
 }
