@@ -8,6 +8,5 @@ namespace PennyPlanner.DTOs.Goals
         public Account Account { get; set; } = default!;
         public Transaction Transaction { get; set; } = default!;
         public float Amount { get; set; }
-        public bool InternalTransaction { get; set; }
     }
 }

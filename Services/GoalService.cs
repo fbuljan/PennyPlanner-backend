@@ -144,13 +144,15 @@ namespace PennyPlanner.Services
                 }
                 else if (goal.GoalType == GoalType.MonthlyIncome)
                 {
-                    if (goalUpdateProgress.Transaction.TransactionType != TransactionType.Income || goalUpdateProgress.Transaction.Date.AddDays(1) < goal.StartDate || goalUpdateProgress.InternalTransaction) continue;
+                    if (goalUpdateProgress.Transaction.TransactionType != TransactionType.Income || goalUpdateProgress.Transaction.Date.AddDays(1) < goal.StartDate 
+                        || goalUpdateProgress.Transaction.IsInternalTransaction) continue;
 
                     goal.CurrentValue += goalUpdateProgress.Amount;
                 }
                 else if (goal.GoalType == GoalType.MonthlyExpenseReduction)
                 {
-                    if (goalUpdateProgress.Transaction.TransactionType != TransactionType.Expense || goalUpdateProgress.Transaction.Date.AddDays(1) < goal.StartDate || goalUpdateProgress.InternalTransaction) continue;
+                    if (goalUpdateProgress.Transaction.TransactionType != TransactionType.Expense || goalUpdateProgress.Transaction.Date.AddDays(1) < goal.StartDate 
+                        || goalUpdateProgress.Transaction.IsInternalTransaction) continue;
 
                     goal.CurrentValue += -goalUpdateProgress.Amount;
                 }

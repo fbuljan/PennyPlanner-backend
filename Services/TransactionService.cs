@@ -43,7 +43,9 @@ namespace PennyPlanner.Services
             account.Transactions.Add(transaction);
             transaction.User = account.User;
             account.User.Transactions.Add(transaction);
-            await ApplyTransaction(account, transaction, transaction.User, false, !save || transactionCreate.OtherAccountId != null);
+            transaction.IsInternalTransaction = !save || transactionCreate.OtherAccountId != null;
+
+            await ApplyTransaction(account, transaction, transaction.User);
 
             if (transactionCreate.OtherAccountId.HasValue && transactionCreate.TransactionType != TransactionType.Template)
             {
@@ -125,7 +127,7 @@ namespace PennyPlanner.Services
             return Mapper.Map<List<TransactionGet>>(transactions);
         }
 
-        private async Task ApplyTransaction(Account account, Transaction transaction, User user, bool reverse = false, bool internalTransaction = false)
+        private async Task ApplyTransaction(Account account, Transaction transaction, User user, bool reverse = false)
         {
             int reverseMultiplier = reverse ? -1 : 1;
             int amount = transaction.Amount * (int)transaction.TransactionType * reverseMultiplier;
@@ -135,8 +137,7 @@ namespace PennyPlanner.Services
                 User = user,
                 Account = account,
                 Transaction = transaction,
-                Amount = amount,
-                InternalTransaction = internalTransaction
+                Amount = amount
             });
         }
     }

@@ -15,5 +15,6 @@ namespace PennyPlanner.Models
         public TransactionCategory TransactionCategory { get; set; }
         public string? Description { get; set; }
         public int? OtherAccountId { get; set; }
+        public bool IsInternalTransaction { get; set; }
     }
 }
