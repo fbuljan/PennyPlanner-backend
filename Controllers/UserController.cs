@@ -57,7 +57,7 @@ namespace PennyPlanner.Controllers
             return Ok(response);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPut("update")]
         public async Task<IActionResult> UpdateUser(UserUpdate userUpdate)
         {
@@ -66,7 +66,7 @@ namespace PennyPlanner.Controllers
             return Ok(user);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteUser(UserDelete userDelete)
         {
@@ -74,7 +74,7 @@ namespace PennyPlanner.Controllers
             return Ok();
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetUser(int id)
         {
@@ -82,7 +82,7 @@ namespace PennyPlanner.Controllers
             return Ok(user);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("get")]
         public async Task<IActionResult> GetUsers()
         {

@@ -18,7 +18,7 @@ namespace PennyPlanner.Controllers
             GoalService = goalService;
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateGoal(GoalCreate goalCreate)
         {
@@ -29,7 +29,7 @@ namespace PennyPlanner.Controllers
             return Ok(response);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPut("update")]
         public async Task<IActionResult> UpdateGoal(GoalUpdate goalUpdate)
         {
@@ -39,7 +39,7 @@ namespace PennyPlanner.Controllers
             return Ok(goal);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteGoal(GoalDelete goalDelete)
         {
@@ -47,7 +47,7 @@ namespace PennyPlanner.Controllers
             return Ok();
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetGoal(int id)
         {
@@ -55,7 +55,7 @@ namespace PennyPlanner.Controllers
             return Ok(goal);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("get")]
         public async Task<IActionResult> GetGoals()
         {
@@ -63,7 +63,7 @@ namespace PennyPlanner.Controllers
             return Ok(goals);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("types")]
         public IActionResult GetGoalTypes()
         {
